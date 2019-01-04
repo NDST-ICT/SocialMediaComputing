@@ -25,7 +25,11 @@ if __name__ == '__main__':
     parser.add_argument('-lmd', type=float, default=None)
     parser.add_argument('-lr', type=float, default=None)
     parser.add_argument('-dat', type=str, default=None)
-
+    parser.add_argument('-dat_tra', type=str, default=None)
+    parser.add_argument('-dat_tes', type=str, default=None)
+    parser.add_argument('-dat_val', type=str, default=None)
+    parser.add_argument('-dataset', type=str, default=None)
+    parser.add_argument('-algorithm', type=str, default=None)
 
 
 
@@ -61,6 +65,40 @@ if __name__ == '__main__':
         os.system('python ./dh/gen_shortestpath.py')
         os.system('python ./dh/preprocess.py')
         os.system('python ./dh/run_sparse.py 0.005 0.0005 0.05 0.8')
+
+
+
+    if args.tool == 'sg':
+        if args.mode == 'UIC':
+            if args.algorithm == 'CELF':
+                if args.dataset in ['DBLP', 'hep', 'phy']:
+                    os.system('python ./sg/StaticGreedyCELF_undirected_UIC.py' + ' -dat ' + args.dat + ' -k ' + str(args.k))
+                if args.dataset == 'slashdot':
+                    os.system('python ./sg/StaticGreedyCELF_directed_UIC.py' + ' -dat ' + args.dat + ' -k ' + str(args.k))
+            if args.algorithm == 'DU':
+                if args.dataset in ['DBLP', 'hep', 'phy']:
+                    os.system('python ./sg/StaticGreedyDU_undirected_UIC.py' + ' -dat ' + args.dat + ' -k ' + str(args.k))
+                if args.dataset == 'slashdot':
+                    os.system('python ./sg/StaticGreedyDU_directed_UIC.py' + ' -dat ' + args.dat + ' -k ' + str(args.k))
+        if args.mode == 'WIC':
+            if args.algorithm == 'CELF':
+                if args.dataset in ['DBLP', 'hep', 'phy']:
+                    os.system('python ./sg/StaticGreedyCELF_undirected_WIC.py' + ' -dat ' + args.dat + ' -k ' + str(args.k))
+                if args.dataset == 'slashdot':
+                    os.system('python ./sg/StaticGreedyCELF_directed_WIC.py' + ' -dat ' + args.dat + ' -k ' + str(args.k))
+            if args.algorithm == 'DU':
+                if args.dataset in ['DBLP', 'hep', 'phy']:
+                    os.system('python ./sg/StaticGreedyDU_undirected_WIC.py' + ' -dat ' + args.dat + ' -k ' + str(args.k))
+                if args.dataset == 'slashdot':
+                    os.system('python ./sg/StaticGreedyDU_directed_WIC.py' + ' -dat ' + args.dat + ' -k ' + str(args.k))
+
+
+
+    if args.tool == 'atten':
+        os.system('python ./atten/data_processing_javadata.py' + ' -dat_tra ' + args.dat_tra +' -dat_tes ' + args.dat_tes +' -dat_val ' + args.dat_val)
+        os.system('python ./atten/data_import_sever.py' + ' -batch ' + str(args.batch))
+        
+        
 
 
 

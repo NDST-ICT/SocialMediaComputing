@@ -4,39 +4,84 @@ This is a introduction to the usage of run.py, which is used to start training E
 
 ## Arguments
 
--tool: 'ed', 'dh', 'lis' or 'rpp', indicating wich tool you want to use;
+-tool: 'ed', 'dh', 'lis', 'rpp', 'atten' or 'sg', indicating wich tool you want to use;
 
--mode: 'benchmark' or 'SNAP' for Encoder-Decoder, 'with_time' or 'processed' for Influence and Susceptibility, 'without_prior' or 'with_prior' for Reinforced Poisson Processes, the mode in which this tool runs
+'ed':
 
--net: the path of network file
+    -mode: 'benchmark' or 'SNAP' for Encoder-Decoder, the mode in which this tool runs
 
--com: the path of community file for Encoder-Decoder
+    -net: the path of network file
 
--label: the path of label file for Encoder-Decoder
+    -com: the path of community file for Encoder-Decoder
 
--k: the parameter k for Encoder-Decoder
+    -k: the parameter k for Encoder-Decoder
 
--cas: the path of cascade (with time) file for Influence and Susceptibility
+    -label: the path of label file for Encoder-Decoder
 
--N: the number of nodes/items in network
+'lis':
 
--T: training period for Reinforced Poisson Processes
+    -mode: 'with_time' or 'processed' for Influence and Susceptibility, the mode in which this tool runs
 
--m: effective number of attentions for Reinforced Poisson Processes
+    -N: the number of nodes/items in network
 
--feature: the length of Influence/Susceptibility vector
+    -feature: the length of Influence/Susceptibility vector
 
--l: the length of cascade context for Influence and Susceptibility
+    -dat: the path of training data file
 
--ite: the number of iteration
+    -l: the length of cascade context for Influence and Susceptibility
 
--batch: the size of batch
+    -ite: the number of iteration
 
--lmd: the scaling factor value for Influence and Susceptibility
+    -batch: the size of batch
 
--lr: the learning rate
+    -lmd: the scaling factor value for Influence and Susceptibility
 
--dat: the path of training data file
+    -lr: the learning rate
+
+    -cas: the path of cascade (with time) file for Influence and Susceptibility
+
+'rpp':
+
+    -mode: 'without_prior' or 'with_prior' for Reinforced Poisson Processes, the mode in which this tool runs
+
+    -N: the number of nodes/items in network
+
+    -T: training period for Reinforced Poisson Processes
+
+    -m: effective number of attentions for Reinforced Poisson Processes
+
+    -lr: the learning rate
+
+    -dat: the path of training data file
+
+    -ite: the number of iteration
+
+    -batch: the size of batch
+
+'sg':
+
+    -mode: 'UIC' or 'WIC' for StaticGreedy, the mode in which this tool runs
+
+    -dat: the path of training data file
+
+    -dataset: 'DBLP', 'hep', 'phy' or 'slashdot'
+
+    -k: the number of seed nodes
+
+    -algorithm: 'CELF' or 'DU', the algorithm you want to use
+
+'atten':
+
+    -dat_tra: the path of training data file
+
+    -dat_tes: the path of testing data file
+
+    -dat_val: the path of validating data file
+
+    -lr: the learning rate
+
+    -batch: the size of batch
+
 
 ##Introduction
 
@@ -91,6 +136,23 @@ We conduct experiments on an excellent longitudinal dataset, containing all pape
 The format of dataset is: <Time_1>\tab<Time_2>\tab......\tab<Time_n>
 
 
+(Att)This project is implemented based on the article “Cascade Dynamics Modeling with Attention-based Recurrent Neural Network”. This paper proposes an attention-based RNN to capture the cross-dependence in cascade, one sharing behavior could be triggered by its non-immediate predecessor in the memory chain. In our model, we use all precious resharing behavior (user and its resharing time in cascade) to predict the next resharing behavior. You can find more detail in this paper.
+
+We use synthetic data to validate the effectiveness of our proposed models in cascade prediction tasks under different underlying network structure and different diffusion models. The Kroneck generator mentioned in the paper can be found in “Stanford Network Analysis Project” (http://snap.stanford.edu/). You can generate the database following the instruction in the paper.
+
+
+(SG)This project is implemented based on the article “StaticGreedy: Solving the Scalability-Accuracy Dilemma in Influence Maximization”. It proposed this StaticGreedy model to solve scalability-accuracy dilemma by guaranteeing the submodularity of influence spread function during the seed selection process. We input the whole graph into the model and finally we find a set of points who can get the most influence to this graph. You can get more details from the paper.
+
+We use four databases to illustrate the performance of our algorithm, three undirected scientific collaboration networks (NetHEPT, NetPHY, and DBLP) and a directed online social network (Slashdot). The paper will tell you where to download.
+
+(Link of collaboration networks: https://www.microsoft.com/en-us/research/people/weic/?from=http%3A%2F%2Fresearch.microsoft.com%2Fen-us%2Fpeople%2Fweic%2F#!selected-projects) 
+
+(Link of directed online social network: http://snap.stanford.edu/data/index.html)
+
+We only use python to implement this model. You can find some ways to speed up this model (PyPy, multiprocessing). 
+
+
+
 ##Examples
 
 Run Encoder-Decoder model on synthetic network:
@@ -102,7 +164,7 @@ Run Encoder-Decoder model on DBLP network:
 	python run.py -tool ed -mode SNAP -net ./ed/data_set/com-dblp.ungraph.txt -label ./ed/data_set/com-dblp.all.cmty.txt -k 100
 
 
-Run Encoder-Decoder model:
+Run DeepHawkes model:
 
 	python run.py -tool dh
 
@@ -124,3 +186,16 @@ Run Reinforced Poisson Processes model with prior:
   
 	python run.py -tool rpp -mode with_prior -T 3650 -N 2786 -m 30 -dat ./rpp/data_set/cas_PR.txt -lr 1e-3 -batch 64 -ite 18000
 
+
+Run StaticGreedy-UIC model:
+
+	python run.py -tool sg -dat ./sg/dblp.txt -k 50 -dataset DBLP -mode UIC -algorithm CELF
+
+Run StaticGreedy-WIC model:
+  
+	python run.py -tool sg -dat ./sg/dblp.txt -k 50 -dataset DBLP -mode WIC -algorithm DU
+
+
+Run Attention-based model:
+
+	python run.py -tool atten -dat_tra ./atten/net32-cp-exp-cascades.train -dat_tes ./atten/net32-cp-exp-cascades.test -dat_val ./atten/net32-cp-exp-cascades.val -batch 32
