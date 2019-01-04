@@ -124,11 +124,11 @@ while step * batch_size < training_iters:
             patience = max_try
             
         print ("last test error:", np.mean(test_loss))
-        print ("last val error:", np.mean(val_loss))
+        #print ("last val error:", np.mean(val_loss))
         print ("last test MRR:", np.mean(MRR))
         print ("last test Acc@1:", np.mean(top1))
         print ("last test Acc@5:", np.mean(top5))
-        print ("last test RMSE:", np.mean(RMSE))
+        #print ("last test RMSE:", np.mean(RMSE))
         
         
         train_loss = []
